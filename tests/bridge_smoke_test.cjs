@@ -97,6 +97,62 @@ test("selects an available official article matching the browser language", asyn
   assert.equal(elements.get("#language-links").childElementCount, 2);
 });
 
+test("uses English when the primary browser language is unsupported", async () => {
+  const id = "a3ecd8849da128f3d092c004";
+  const source = encodedSource("https://scp-wiki.wikidot.com/scp-173");
+  const elements = await runBridge({
+    search: `?id=${id}&source=${source}`,
+    browserLanguages: ["nl-NL", "ja-JP"],
+    route: {
+      sourceURL: "https://scp-wiki.wikidot.com/scp-173",
+      original: { language: "JP", url: "https://scp-jp.wikidot.com/scp-173" },
+      versions: {
+        EN: "https://scp-wiki.wikidot.com/scp-173",
+        JP: "https://scp-jp.wikidot.com/scp-173"
+      }
+    }
+  });
+
+  assert.equal(elements.get("#open-web").href, "https://scp-wiki.wikidot.com/scp-173");
+});
+
+test("uses English when the primary language version is unavailable", async () => {
+  const id = "a3ecd8849da128f3d092c004";
+  const source = encodedSource("https://scp-wiki.wikidot.com/scp-173");
+  const elements = await runBridge({
+    search: `?id=${id}&source=${source}`,
+    browserLanguages: ["ja-JP", "fr-FR"],
+    route: {
+      sourceURL: "https://scp-wiki.wikidot.com/scp-173",
+      original: { language: "FR", url: "https://fondationscp.wikidot.com/scp-173" },
+      versions: {
+        EN: "https://scp-wiki.wikidot.com/scp-173",
+        FR: "https://fondationscp.wikidot.com/scp-173"
+      }
+    }
+  });
+
+  assert.equal(elements.get("#open-web").href, "https://scp-wiki.wikidot.com/scp-173");
+});
+
+test("uses the original version only when English is unavailable", async () => {
+  const id = "a3ecd8849da128f3d092c004";
+  const source = encodedSource("https://scp-wiki.wikidot.com/scp-173");
+  const elements = await runBridge({
+    search: `?id=${id}&source=${source}`,
+    browserLanguages: ["ja-JP"],
+    route: {
+      sourceURL: "https://scp-wiki.wikidot.com/scp-173",
+      original: { language: "FR", url: "https://fondationscp.wikidot.com/scp-173" },
+      versions: {
+        FR: "https://fondationscp.wikidot.com/scp-173"
+      }
+    }
+  });
+
+  assert.equal(elements.get("#open-web").href, "https://fondationscp.wikidot.com/scp-173");
+});
+
 test("removes a mismatched source fallback before opening the app", async () => {
   const id = "a3ecd8849da128f3d092c004";
   const source = encodedSource("https://scp-wiki.wikidot.com/scp-096");

@@ -58,14 +58,13 @@
     return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("").slice(0, 24);
   }
 
-  function preferredLanguage(versions) {
-    for (const tag of navigator.languages || [navigator.language]) {
-      const normalized = String(tag || "").toLowerCase();
-      if (normalized.startsWith("zh-hant") && versions["ZH-TR"]) return "ZH-TR";
-      const code = LANGUAGE_MAP[normalized.split("-")[0]];
-      if (code && versions[code]) return code;
+  function browserLanguageCode() {
+    const primaryTag = navigator.language || navigator.languages?.[0] || "";
+    const normalized = String(primaryTag).toLowerCase().replace(/_/g, "-");
+    if (normalized.startsWith("zh-hant") || /^zh-(tw|hk|mo)(-|$)/.test(normalized)) {
+      return "ZH-TR";
     }
-    return null;
+    return LANGUAGE_MAP[normalized.split("-")[0]] || null;
   }
 
   function renderLanguages(versions) {
@@ -112,10 +111,10 @@
     }
 
     const versions = route?.versions || {};
-    const selected = preferredLanguage(versions);
-    const destination = safeURL(versions[selected])
-      || safeURL(route?.original?.url)
+    const selected = browserLanguageCode();
+    const destination = safeURL(selected && versions[selected])
       || safeURL(versions.EN)
+      || safeURL(route?.original?.url)
       || fallback;
 
     renderLanguages(versions);
