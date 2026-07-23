@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex,follow" />
+  <meta name="theme-color" content="#111418" />
+  <meta property="og:title" content="Open an SCP article in SCP docs" />
+  <meta property="og:description" content="Open the shared article in SCP docs or continue on the official SCP Wiki." />
+  <title>Open in SCP docs</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="bridge.js?v=20260723-1" defer></script>
+</head>
+<body>
+  <main class="panel" aria-live="polite">
+    <header class="brand">
+      <img src="https://scpdocs.link/assets/images/app-icon.png" width="64" height="64" alt="" />
+      <div>
+        <p class="eyebrow">SCP docs · ARTICLE LINK</p>
+        <h1 id="status">Open this SCP article</h1>
+      </div>
+    </header>
+
+    <p id="detail">Preparing the article link.</p>
+
+    <div class="actions">
+      <a id="open-app" class="button primary" hidden>Open in SCP docs</a>
+      <a id="open-web" class="button" hidden>Continue on the official wiki</a>
+      <a id="open-store" class="store-link" href="https://apps.apple.com/app/scp-docs/id6765882660">
+        Get SCP docs on the App Store
+      </a>
+    </div>
+
+    <section id="languages" hidden>
+      <h2>Available languages</h2>
+      <div id="language-links" class="language-links"></div>
+    </section>
+
+    <noscript>
+      JavaScript is required to prepare this article link.
+    </noscript>
+  </main>
+</body>
+</html>
