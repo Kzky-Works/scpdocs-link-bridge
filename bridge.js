@@ -246,6 +246,13 @@
     }
   }
 
+  function encodeSource(value) {
+    const bytes = new TextEncoder().encode(value);
+    let binary = "";
+    for (const byte of bytes) binary += String.fromCharCode(byte);
+    return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+  }
+
   function safeURL(raw) {
     try {
       const url = new URL(raw);
@@ -328,6 +335,11 @@
       if (route && await routeIDForURL(route.sourceURL) !== identifier) route = null;
     } catch (_) {
       route = null;
+    }
+
+    const routeFallback = safeURL(route?.sourceURL);
+    if (routeFallback) {
+      appLink.href = universalLink(identifier, encodeSource(routeFallback));
     }
 
     const versions = route?.versions || {};

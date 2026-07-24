@@ -41,6 +41,7 @@ async function runBridge({ search, browserLanguages = ["en-US"], route = null })
     URL,
     URLSearchParams,
     atob,
+    btoa,
     decodeURIComponent,
     document,
     fetch: async () => ({
@@ -71,7 +72,7 @@ async function runBridge({ search, browserLanguages = ["en-US"], route = null })
   return { document, elements };
 }
 
-test("creates a cross-domain HTTPS Universal Link from a valid post URL", async () => {
+test("preserves the signed fallback from an existing long post URL", async () => {
   const id = "a3ecd8849da128f3d092c004";
   const source = encodedSource("https://scp-wiki.wikidot.com/scp-173");
   const { elements } = await runBridge({ search: `?id=${id}&source=${source}` });
@@ -82,6 +83,26 @@ test("creates a cross-domain HTTPS Universal Link from a valid post URL", async 
     `https://scpdocs.link/open/?id=${id}&source=${source}`
   );
   assert.equal(elements.get("#open-web").href, "https://scp-wiki.wikidot.com/scp-173");
+});
+
+test("reconstructs the app fallback from a verified route for a short post URL", async () => {
+  const id = "a3ecd8849da128f3d092c004";
+  const sourceURL = "https://scp-wiki.wikidot.com/scp-173";
+  const source = encodedSource(sourceURL);
+  const { elements } = await runBridge({
+    search: `?id=${id}`,
+    route: {
+      sourceURL,
+      original: { language: "EN", url: sourceURL },
+      versions: { EN: sourceURL }
+    }
+  });
+
+  assert.equal(
+    elements.get("#open-app").href,
+    `https://scpdocs.link/open/?id=${id}&source=${source}`
+  );
+  assert.equal(elements.get("#open-web").href, sourceURL);
 });
 
 test("selects an available official article matching the browser language", async () => {
