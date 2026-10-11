@@ -6,16 +6,16 @@
   const LANGUAGE_MAP = {
     en: "EN", es: "ES", fr: "FR", ja: "JP", ko: "KO",
     pl: "PL", ru: "RU", zh: "CN", th: "TH", de: "DE",
-    it: "IT", pt: "PT/BR", vi: "VN", cs: "CS"
+    it: "IT", pt: "PT", vi: "VN", cs: "CS", tr: "TR", id: "ID"
   };
   const LANGUAGE_ORDER = [
     "EN", "ES", "FR", "JP", "KO", "PL", "RU", "CN", "TH", "DE",
-    "IT", "PT/BR", "VN", "CS", "ZH-TR"
+    "IT", "PT", "VN", "CS", "ZH-TR", "TR", "ID"
   ];
   const UI_LANGUAGE_TAGS = {
     EN: "en", ES: "es", FR: "fr", JP: "ja", KO: "ko",
     PL: "pl", RU: "ru", CN: "zh-Hans", TH: "th", DE: "de",
-    IT: "it", "PT/BR": "pt-BR", VN: "vi", CS: "cs", "ZH-TR": "zh-Hant"
+    IT: "it", PT: "pt-BR", VN: "vi", CS: "cs", "ZH-TR": "zh-Hant"
   };
   const UI_COPY = {
     EN: {
@@ -161,7 +161,7 @@
       unable: "Impossibile aprire questo link",
       invalid: "Il link condiviso all’articolo non è valido."
     },
-    "PT/BR": {
+    PT: {
       pageTitle: "Abrir no SCP docs",
       eyebrow: "SCP docs · LINK DO ARTIGO",
       heading: "Abrir este artigo SCP",
@@ -220,7 +220,7 @@
     "scp-pl.wikidot.com", "scpfoundation.net", "scp-ru.wikidot.com",
     "scp-wiki-cn.wikidot.com", "scp-th.wikidot.com", "scp-wiki-de.wikidot.com",
     "fondazionescp.wikidot.com", "scp-pt-br.wikidot.com", "scp-vn.wikidot.com",
-    "scp-cs.wikidot.com", "scp-zh-tr.wikidot.com"
+    "scp-cs.wikidot.com", "scp-zh-tr.wikidot.com", "scpvakfi.wikidot.com", "scp-id.wikidot.com"
   ]);
 
   const status = document.querySelector("#status");
@@ -283,7 +283,7 @@
   function applyLocalization() {
     const language = browserLanguageCode() || "EN";
     copy = UI_COPY[language] || UI_COPY.EN;
-    document.documentElement.lang = UI_LANGUAGE_TAGS[language] || "en";
+    document.documentElement.lang = UI_COPY[language] ? UI_LANGUAGE_TAGS[language] : "en";
     document.title = copy.pageTitle;
     eyebrow.textContent = copy.eyebrow;
     status.textContent = copy.heading;
@@ -297,11 +297,11 @@
   function renderLanguages(versions) {
     languageLinks.replaceChildren();
     for (const language of LANGUAGE_ORDER) {
-      const target = safeURL(versions[language]);
+      const target = safeURL(versions[language] || (language === "PT" ? versions["PT/BR"] : null));
       if (!target) continue;
       const link = document.createElement("a");
       link.href = target;
-      link.textContent = language;
+      link.textContent = language === "PT" ? "PT/BR" : language;
       link.hreflang = language.toLowerCase();
       languageLinks.append(link);
     }
@@ -342,7 +342,8 @@
       appLink.href = universalLink(identifier, encodeSource(routeFallback));
     }
 
-    const versions = route?.versions || {};
+    const versions = { ...(route?.versions || {}) };
+    if (!versions.PT && versions["PT/BR"]) versions.PT = versions["PT/BR"];
     const selected = browserLanguageCode();
     const destination = safeURL(selected && versions[selected])
       || safeURL(versions.EN)
